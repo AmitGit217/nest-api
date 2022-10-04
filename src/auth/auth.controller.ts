@@ -8,8 +8,7 @@ export class AuthController {
 
   @Post('signup')
   signup(@Body() user: AuthInterface) {
-    console.log({ user });
-    return this.authService.signup();
+    return this.authService.signup(user);
   }
 
   @Post('login')
