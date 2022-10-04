@@ -28,7 +28,20 @@ export class AuthService {
     }
   }
 
-  login() {
-    return 'Log in';
+  async login(dto: AuthInterface) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: dto.email,
+      },
+    });
+    if (!user) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+    const passMatch = await argon.verify(user.password, dto.password);
+    if (!passMatch) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+    delete user.password;
+    return user;
   }
 }

@@ -12,7 +12,7 @@ export class AuthController {
   }
 
   @Post('login')
-  login() {
-    return this.authService.login();
+  login(@Body() user: AuthInterface) {
+    return this.authService.login(user);
   }
 }
