@@ -31,6 +31,7 @@ describe('App e2e', () => {
       email: 'mail@mail.com',
       password: '1234',
     };
+
     describe('Signup', () => {
       it('Sign up', () => {
         return pactum
@@ -39,6 +40,23 @@ describe('App e2e', () => {
           .withBody(dto)
           .expectStatus(201);
       });
+      it('Should throw: email empty', () => {
+        return pactum
+          .spec()
+          .post(`/auth/signup`)
+          .withBody(dto.password)
+          .expectStatus(400);
+      });
+      it('Should throw: password empty', () => {
+        return pactum
+          .spec()
+          .post(`/auth/signup`)
+          .withBody(dto.email)
+          .expectStatus(400);
+      });
+      it('Should throw: no DTO', () => {
+        return pactum.spec().post(`/auth/signup`).expectStatus(400);
+      });
     });
     describe('Login', () => {
       it('Log in', () => {
@@ -46,13 +64,41 @@ describe('App e2e', () => {
           .spec()
           .post(`/auth/login`)
           .withBody(dto)
-          .expectStatus(200);
+          .expectStatus(200)
+          .stores('userToken', 'token');
+      });
+      it('Should throw: email empty', () => {
+        return pactum
+          .spec()
+          .post(`/auth/login`)
+          .withBody(dto.password)
+          .expectStatus(400);
+      });
+      it('Should throw: password empty', () => {
+        return pactum
+          .spec()
+          .post(`/auth/login`)
+          .withBody(dto.email)
+          .expectStatus(400);
+      });
+      it('Should throw: no DTO', () => {
+        return pactum.spec().post(`/auth/login`).expectStatus(400);
       });
     });
   });
 
   describe('User', () => {
-    describe('Get current', () => {});
+    describe('Get current', () => {
+      it('Should return current user', () => {
+        return pactum
+          .spec()
+          .get('/users/me')
+          .withHeaders({
+            Authorization: 'Bearer $S{userToken}',
+          })
+          .expectStatus(200);
+      });
+    });
     describe('Edit current', () => {});
   });
 
