@@ -1,3 +1,4 @@
+import { EditUserInterface } from '../src/interfaces/editUser.interface';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PrismaService } from '../src/prisma/prisma.service';
@@ -88,18 +89,30 @@ describe('App e2e', () => {
   });
 
   describe('User', () => {
-    describe('Get current', () => {
-      it('Should return current user', () => {
-        return pactum
-          .spec()
-          .get('/users/me')
-          .withHeaders({
-            Authorization: 'Bearer $S{userToken}',
-          })
-          .expectStatus(200);
-      });
+    it('Should return current user', () => {
+      return pactum
+        .spec()
+        .get('/users/me')
+        .withHeaders({
+          Authorization: 'Bearer $S{userToken}',
+        })
+        .expectStatus(200);
     });
-    describe('Edit current', () => {});
+
+    it('Edit current user', () => {
+      const dto: EditUserInterface = {
+        firstName: 'Amit',
+        lastName: 'Bar-gil',
+      };
+      return pactum
+        .spec()
+        .patch('/users')
+        .withHeaders({
+          Authorization: 'Bearer $S{userToken}',
+        })
+        .withBody({ dto })
+        .expectStatus(200);
+    });
   });
 
   describe('Bookmark', () => {
