@@ -99,7 +99,7 @@ describe('App e2e', () => {
         .expectStatus(200);
     });
 
-    it('Edit current user', () => {
+    it('Should edit current user', () => {
       const dto: EditUserInterface = {
         firstName: 'Amit',
         lastName: 'Bar-gil',
@@ -110,7 +110,7 @@ describe('App e2e', () => {
         .withHeaders({
           Authorization: 'Bearer $S{userToken}',
         })
-        .withBody({ dto })
+        .withBody(dto)
         .expectStatus(200);
     });
   });
