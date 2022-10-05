@@ -1,20 +1,75 @@
 import { CreateBookmarkInterface } from '../interfaces/create-Bookmark.interface';
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { EditBookmarkInterface } from '../interfaces/edit-Bookmark.interface';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BookmarkService {
-  getBookmarks(userId: number) {}
+  constructor(private prisma: PrismaService) {}
+  getBookmarks(userId: number) {
+    return this.prisma.bookmark.findMany({
+      where: {
+        userId,
+      },
+    });
+  }
 
-  getBookmarkById(userId: number, bookmarkId: number) {}
+  getBookmarkById(userId: number, bookmarkId: number) {
+    return this.prisma.bookmark.findFirst({
+      where: {
+        id: bookmarkId,
+        userId,
+      },
+    });
+  }
 
-  createBookmark(userId: number, dto: CreateBookmarkInterface) {}
+  async createBookmark(userId: number, dto: CreateBookmarkInterface) {
+    const bookmark = await this.prisma.bookmark.create({
+      data: {
+        userId,
+        ...dto,
+      },
+    });
+    return bookmark;
+  }
 
-  updateBookmark(
+  async updateBookmark(
     userId: number,
     bookmarkId: number,
     dto: EditBookmarkInterface,
-  ) {}
+  ) {
+    const bookmark = await this.prisma.bookmark.findFirst({
+      where: {
+        id: bookmarkId,
+      },
+    });
+    if (!bookmark || bookmark.userId !== userId) {
+      throw new ForbiddenException('Access to recurse denied');
+    }
+    const update = await this.prisma.bookmark.update({
+      where: {
+        id: bookmarkId,
+      },
+      data: {
+        ...dto,
+      },
+    });
+    return update;
+  }
 
-  deleteBookmark(userId: number, bookmarkId: number) {}
+  async deleteBookmark(userId: number, bookmarkId: number) {
+    const bookmark = await this.prisma.bookmark.findFirst({
+      where: {
+        id: bookmarkId,
+      },
+    });
+    if (!bookmark || bookmark.userId !== userId) {
+      throw new ForbiddenException('Access to recurse denied');
+    }
+    await this.prisma.bookmark.delete({
+      where: {
+        id: bookmarkId,
+      },
+    });
+  }
 }
