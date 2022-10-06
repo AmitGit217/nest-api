@@ -4,9 +4,10 @@ COPY package*.json ./
 COPY prisma ./prisma
 COPY .env ./
 COPY tsconfig.json ./
-COPY . .
 RUN npm install
+COPY . .
+RUN npm install pm2 -g
 RUN npx prisma generate
 EXPOSE 3000
-CMD ["npm","run","start"]
+CMD ["pm2-runtime","start","npm","--","start"]
 
