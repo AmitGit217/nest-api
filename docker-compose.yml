@@ -1,24 +1,39 @@
 version: '3.8'
 services:
-  dev-db:
+  db:
     image: postgres:13
-    ports:
-      - 5434:5432
+    restart: always
     environment:
+      POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
       POSTGRES_DB: nest
-    networks:
-      - freecodecamp
-  test-db:
-    image: postgres:13
+    expose:
+      - '5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     ports:
-      - 5435:5432
+      - '5432:5432'
+
+  web:
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest-api_c1
     environment:
+      POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
       POSTGRES_DB: nest
-    networks:
-      - freecodecamp
-networks:
-  freecodecamp:
+    depends_on:
+      - db
+    ports:
+      - '3000:3000'
+    restart: always
+volumes:
+  pgdata:
+
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8080:8080
